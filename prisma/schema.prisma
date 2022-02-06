@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  avatar    String?
+  token     String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+  messages  Message[]
+  rooms     UserRoom[]
+}
+
+model UserRoom {
+  id        String   @id @default(uuid())
+  userId    String
+  roomId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  room      Room     @relation(fields: [roomId], references: [id])
+}
+
+model Room {
+  id        String     @id @default(uuid())
+  name      String
+  code      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+  messages  Message[]
+  users     UserRoom[]
+}
+
+model Message {
+  id         String       @id @default(uuid())
+  text       String
+  userId     String
+  roomId     String
+  gif        String?
+  date       DateTime
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @default(now())
+  room       Room         @relation(fields: [roomId], references: [id])
+  sender     User         @relation(fields: [userId], references: [id])
+  attachment Attachment[]
+}
+
+model Attachment {
+  id        String         @id @default(uuid())
+  url       String
+  messageId String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @default(now())
+  type      AttachmentType
+  message   Message        @relation(fields: [messageId], references: [id])
+}
+
+enum AttachmentType {
+  IMAGE
+  VIDEO
+  AUDIO
+  FILE
+}
