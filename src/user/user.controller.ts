@@ -94,9 +94,11 @@ export class UserController {
   async uploadAvatar(
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
+    @Body() data: Prisma.UserUpdateInput,
   ) {
     return await this.users.update(id, {
       avatar: file.filename,
+      ...data,
     });
   }
 }
